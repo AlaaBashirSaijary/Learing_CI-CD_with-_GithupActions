@@ -1,0 +1,24 @@
+name: Star Event Workflow
+
+# الموعد أو المشغل (Trigger)
+on:
+  watch:
+    types: [started]
+
+jobs:
+  # اسم المهمة
+  log-star-event:
+    # بيئة التشغيل (السيرفر)
+    runs-on: ubuntu-latest
+
+    steps:
+      # الخطوة الأولى: جلب الكود من المستودع
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      # الخطوة الثانية: طباعة معلومات الحدث
+      - name: log star event
+        run: |
+          echo "A user has starred or unstarred the repository."
+          echo "Event information:"
+          cat $GITHUB_EVENT_PATH
