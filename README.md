@@ -1,0 +1,1 @@
+[![Star Event Workflow](https://github.com/AlaaBashirSaijary/Learing_CI-CD_with-_GithupActions/actions/workflows/star_event.yml/badge.svg)](https://github.com/AlaaBashirSaijary/Learing_CI-CD_with-_GithupActions/actions/workflows/star_event.yml)
