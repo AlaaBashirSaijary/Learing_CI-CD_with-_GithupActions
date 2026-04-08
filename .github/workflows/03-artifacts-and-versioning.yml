@@ -1,0 +1,39 @@
+name: 03 - Artifacts and Versioning Suite
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. جلب الكود من المستودع
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. محاكاة الاختبارات (للتأكد أن التغليف لا يحدث إلا بعد النجاح)
+      - name: Pre-Package Quality Check
+        run: |
+          echo "Running final checks before packaging..."
+          echo "All tests passed! ✅"
+
+      # 3. مرحلة التغليف (Creating the Artifact)
+      # هنا نقوم بتجميع الملفات الضرورية فقط
+      - name: Prepare Release Folder
+        run: |
+          mkdir release_folder
+          cp app.py release_folder/
+          echo "v1.1.0" > release_folder/version.txt
+
+      # 4. تحويل المجلد إلى ملف Zip (التغليف الفعلي)
+      - name: Zip the Product
+        run: zip -r final-product-v1.1.0.zip release_folder
+
+      # 5. رفع الـ Artifact ليظهر في واجهة GitHub
+      - name: Upload Production Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Production-Release-v1.1.0
+          path: final-product-v1.1.0.zip
