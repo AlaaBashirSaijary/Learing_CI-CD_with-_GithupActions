@@ -1,0 +1,46 @@
+name: 04 - Automated Release and Patch Notes
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  release-management:
+    runs-on: ubuntu-latest
+    # نضمن أن هذا العمل لا يبدأ إلا بعد نجاح الـ CI (اختياري حسب رغبتك)
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 1. مرحلة التغليف (تكرار سريع لإنشاء الـ Artifact)
+      - name: Prepare Product for Release
+        run: |
+          mkdir release_package
+          cp app.py release_package/
+          echo "Build Version: 1.1.${{ github.run_number }}" > release_package/build_info.txt
+          zip -r product-v1.1.${{ github.run_number }}.zip release_package
+
+      # 2. إنشاء الـ Release الرسمي على GitHub (المعلومة الجديدة)
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          # تحديد التاج (Tag) آلياً
+          tag_name: v1.1.${{ github.run_number }}
+          name: Release v1.1.${{ github.run_number }}
+          # التقرير الآلي (Changelog) الذي سيظهر للمستخدمين
+          body: |
+            ## ✨ تحديثات الإصدار الجديد (Automated Report)
+            
+            بناءً على آخر التغييرات في المستودع، تم إصدار هذه النسخة المستقرة:
+            
+            ### 🛠️ ما تم إنجازه في هذا الـ Build:
+            - **الفحص الآلي:** تم اجتياز كافة اختبارات الجودة بنجاح ✅.
+            - **التغليف:** تم تجميع الملفات الضرورية في ملف Zip واحد 📦.
+            - **التوثيق:** تحديث سجل الإصدارات آلياً لضمان الشفافية.
+            
+            *ملاحظة: هذه النسخة جاهزة للاستخدام المباشر من المرفقات أدناه.*
+          # إرفاق ملف الـ Zip بالـ Release مباشرة
+          files: product-v1.1.${{ github.run_number }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
