@@ -1,52 +1,47 @@
 name: 05 - Continuous Deployment (CD)
 
-# يعمل هذا الملف تلقائياً فقط بعد نجاح عملية الإصدار (الملف 04)
 on:
   workflow_run:
     workflows: ["04 - Automated Release and Patch Notes"]
     types:
       - completed
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  deployment-simulation:
-    # شرط أساسي: لا يبدأ النشر إلا إذا كانت نتيجة الملف السابق "نجاح"
+  deployment:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. مرحلة الفحص النهائي للبيئة (Pre-Deployment Check)
-      - name: Environment Audit
-        run: |
-          echo "🔍 التأكد من استقرار النسخة قبل النشر النهائي..."
-          echo "📦 النسخة المختارة: ${{ github.event.workflow_run.head_sha }}"
-          sleep 2
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      # 2. محاكاة عملية النشر (Simulation)
-      # هنا نعتبر أن "صفحة الإصدارات" هي السيرفر الذي يشاهد منه العميل المنتج
-      - name: Deploy to Live Portal
+      - name: Prepare files for deployment
         run: |
-          echo "🚀 بدء عملية النشر الآلي (CD)..."
-          echo "📡 جاري تحديث بوابة الإصدارات الرسمية..."
-          echo "✅ تم تحديث الرابط بنجاح: https://github.com/${{ github.repository }}/releases"
-          sleep 3
+          echo "🔍 التأكد من استقرار النسخة قبل النشر..."
+          echo "📦 النسخة: ${{ github.event.workflow_run.head_sha }}"
+          echo "✅ تجهيز الملفات للنشر..."
 
-      # 3. خطوة إضافية: تحديث الحالة (Post-Deployment Notification)
-      # هذه الخطوة هي التي "تعلن" للعالم أن البرنامج أصبح متاحاً
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
       - name: Broadcast Status
         run: |
-          echo "📢 إرسال إشعار للنظام: النسخة الجديدة أصبحت Live الآن."
-          echo "🌟 تم الانتهاء من دورة حياة الكود بالكامل (من أول سطر حتى العميل)."
-
-      # 4. (اختياري) إذا كنتِ تملكين بوت تلغرام، يمكنك تفعيل هذه الخطوة فوراً
-      # - name: Send Telegram Notification
-      #   uses: appleboy/telegram-action@master
-      #   with:
-      #     to: ${{ secrets.TELEGRAM_TO }}
-      #     token: ${{ secrets.TELEGRAM_TOKEN }}
-      #     message: |
-      #       🚀 تم نشر نسخة جديدة بنجاح!
-      #       النسخة: ${{ github.event.workflow_run.head_sha }}
-      #       الرابط: https://github.com/${{ github.repository }}/releases
+          echo "📢 تم النشر بنجاح!"
+          echo "🌟 الرابط: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
