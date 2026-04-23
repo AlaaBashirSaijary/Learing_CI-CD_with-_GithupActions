@@ -1,0 +1,52 @@
+name: 05 - Continuous Deployment (CD)
+
+# يعمل هذا الملف تلقائياً فقط بعد نجاح عملية الإصدار (الملف 04)
+on:
+  workflow_run:
+    workflows: ["04 - Automated Release and Patch Notes"]
+    types:
+      - completed
+
+jobs:
+  deployment-simulation:
+    # شرط أساسي: لا يبدأ النشر إلا إذا كانت نتيجة الملف السابق "نجاح"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 1. مرحلة الفحص النهائي للبيئة (Pre-Deployment Check)
+      - name: Environment Audit
+        run: |
+          echo "🔍 التأكد من استقرار النسخة قبل النشر النهائي..."
+          echo "📦 النسخة المختارة: ${{ github.event.workflow_run.head_sha }}"
+          sleep 2
+
+      # 2. محاكاة عملية النشر (Simulation)
+      # هنا نعتبر أن "صفحة الإصدارات" هي السيرفر الذي يشاهد منه العميل المنتج
+      - name: Deploy to Live Portal
+        run: |
+          echo "🚀 بدء عملية النشر الآلي (CD)..."
+          echo "📡 جاري تحديث بوابة الإصدارات الرسمية..."
+          echo "✅ تم تحديث الرابط بنجاح: https://github.com/${{ github.repository }}/releases"
+          sleep 3
+
+      # 3. خطوة إضافية: تحديث الحالة (Post-Deployment Notification)
+      # هذه الخطوة هي التي "تعلن" للعالم أن البرنامج أصبح متاحاً
+      - name: Broadcast Status
+        run: |
+          echo "📢 إرسال إشعار للنظام: النسخة الجديدة أصبحت Live الآن."
+          echo "🌟 تم الانتهاء من دورة حياة الكود بالكامل (من أول سطر حتى العميل)."
+
+      # 4. (اختياري) إذا كنتِ تملكين بوت تلغرام، يمكنك تفعيل هذه الخطوة فوراً
+      # - name: Send Telegram Notification
+      #   uses: appleboy/telegram-action@master
+      #   with:
+      #     to: ${{ secrets.TELEGRAM_TO }}
+      #     token: ${{ secrets.TELEGRAM_TOKEN }}
+      #     message: |
+      #       🚀 تم نشر نسخة جديدة بنجاح!
+      #       النسخة: ${{ github.event.workflow_run.head_sha }}
+      #       الرابط: https://github.com/${{ github.repository }}/releases
