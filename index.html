@@ -1,15 +1,306 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-    <title>CD - Continuous Deployment</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CD Pipeline | Alaa Basher Saijary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 25px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .name {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 18px;
+            border-right: 4px solid #764ba2;
+        }
+
+        .name span {
+            color: #764ba2;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .status {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-right: 4px solid #4caf50;
+        }
+
+        .status.green {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .deploy-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 13px;
+            color: #1565c0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+
+        .feedback-area {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px dashed #ddd;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-family: inherit;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .comment {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .live {
+            animation: pulse 2s infinite;
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h1 style="color:purple;">✅ مرحباً من عالم النشر الآلي (CD)! 🚀</h1>
-    <p>تم نشر هذه الصفحة تلقائياً بواسطة GitHub Actions.</p>
-    <p>تاريخ ووقت النشر: <strong id="time"></strong></p>
-    <script>
-        document.getElementById('time').innerText = new Date().toLocaleString();
-    </script>
+
+<div class="card" id="app">
+    <div class="icon">🚀🤍</div>
+    <h1>Continuous Deployment</h1>
+    <div class="badge">✨ CI/CD Pipeline يعمل بنجاح ✨</div>
+
+    <!-- الاسم الظاهر -->
+    <div class="name">
+        👩‍💻 أعددت هذه الواجهة: <span>Alaa Basher Saijary</span>
+    </div>
+
+    <!-- حالة النشر -->
+    <div class="status">
+        ✅ <span class="green">آخر عملية نشر (Deployment)</span><br>
+        <span id="deployTime">جاري تحميل التاريخ...</span>
+    </div>
+
+    <!-- معلومات الـ CD -->
+    <div class="deploy-info">
+        <strong>📦 معلومات عن الـ CD Pipeline:</strong><br>
+        • تم النشر تلقائياً عبر GitHub Actions 🤖<br>
+        • الرابط: <a href="#" id="pageUrl" target="_blank">alaabashirsaijary.github.io/Learing_CI-CD</a><br>
+        • آلية العمل: CI ✅ → Artifact 📦 → CD 🚀 → المستخدم 🙌
+    </div>
+
+    <!-- أزرار تفاعلية -->
+    <button onclick="window.open('https://github.com/AlaaBashirSaijary/Learing_CI-CD_with-_GithupActions', '_blank')">
+        📂 زيارة المستودع
+    </button>
+    <button onclick="shareLink()">
+        📢 شارك الواجهة
+    </button>
+    <button onclick="window.open('https://www.linkedin.com/in/alaa-saijary-08b569264/', '_blank')">
+        🔗 تابعوني على LinkedIn
+    </button>
+
+    <!-- قسم التفاعل مع الزوار -->
+    <div class="feedback-area">
+        <strong>💬 شاركنا تجربتك مع CI/CD:</strong>
+        <textarea id="userComment" rows="3" placeholder="مثلاً: أول مرة جربت فيها CD كانت مع... أو سؤال معين..."></textarea>
+        <button onclick="addComment()">📝 أضف تعليقك</button>
+        <div id="commentsList">
+            <!-- هون بتظهر التعليقات -->
+        </div>
+    </div>
+
+    <div class="footer">
+        🤍 تم النشر باستخدام GitHub Actions | Continuous Deployment Pipeline
+    </div>
+</div>
+
+<script>
+    // عرض وقت النشر الحقيقي من الـ Workflow
+    function updateDeployTime() {
+        const now = new Date();
+        document.getElementById('deployTime').innerText = now.toLocaleString('ar-EG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+    updateDeployTime();
+
+    // عرض رابط الصفحة الحالي
+    document.getElementById('pageUrl').href = window.location.href;
+    document.getElementById('pageUrl').innerText = window.location.hostname + window.location.pathname;
+
+    // مشاركة الرابط
+    function shareLink() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'CD Pipeline - آلية النشر المستمر',
+                text: 'شوفوا الواجهة التفاعلية لـ Continuous Deployment اللي أعددتها!',
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert('✅ تم نسخ الرابط! شاركه مع أصدقائك 🙌');
+        }
+    }
+
+    // إضافة تعليق (تخزين مؤقت بالمتصفح)
+    function addComment() {
+        const commentText = document.getElementById('userComment').value.trim();
+        if (!commentText) {
+            alert('الرجاء كتابة تعليق أولاً 🙏');
+            return;
+        }
+
+        const commentsDiv = document.getElementById('commentsList');
+        const newComment = document.createElement('div');
+        newComment.className = 'comment';
+        const now = new Date().toLocaleString();
+        newComment.innerHTML = `
+            <strong>💬 زائر/ة:</strong><br>
+            "${commentText}"<br>
+            <small style="color:#888;">📅 ${now}</small>
+        `;
+        commentsDiv.prepend(newComment);
+        document.getElementById('userComment').value = '';
+
+        // حفظ التعليقات في LocalStorage عشان ما تختفي
+        saveComments();
+    }
+
+    // حفظ التعليقات
+    function saveComments() {
+        const comments = [];
+        document.querySelectorAll('#commentsList .comment').forEach(comment => {
+            comments.push(comment.innerHTML);
+        });
+        localStorage.setItem('cd_comments', JSON.stringify(comments));
+    }
+
+    // تحميل التعليقات المخزنة
+    function loadComments() {
+        const saved = localStorage.getItem('cd_comments');
+        if (saved) {
+            const comments = JSON.parse(saved);
+            const commentsDiv = document.getElementById('commentsList');
+            commentsDiv.innerHTML = '';
+            comments.forEach(comment => {
+                const newComment = document.createElement('div');
+                newComment.className = 'comment';
+                newComment.innerHTML = comment;
+                commentsDiv.appendChild(newComment);
+            });
+        }
+    }
+
+    loadComments();
+
+    // تأثير إضافي: تحية حسب الوقت
+    const hour = new Date().getHours();
+    let greeting = '';
+    if (hour < 12) greeting = '🌅 صباح الخير';
+    else if (hour < 18) greeting = '☀️ مساء الخير';
+    else greeting = '🌙 مساء الخير';
+    console.log(greeting + ' من Alaa Basher Saijary');
+</script>
+
 </body>
 </html>
